@@ -19,6 +19,7 @@ body {
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;
+  overflow-x: hidden;
 }
 .navbar {
   background: var(--card);
@@ -277,14 +278,164 @@ body {
   .hero { padding: 38px 0 30px 0; }
   .section-title { font-size: 1.3em; }
 }
-
+/* --- Mobile Responsive Additions --- */
+@media (max-width: 700px) {
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background: var(--card);
+    flex-direction: column;
+    width: 100vw;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.16);
+    z-index: 20;
+    padding: 18px 0;
+  }
+  .nav-links.open {
+    display: flex;
+  }
+  .nav-links a {
+    margin: 16px 0;
+    font-size: 1.2em;
+    text-align: center;
+    width: 100vw;
+  }
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    z-index: 30;
+  }
+  .hamburger span {
+    height: 4px;
+    width: 100%;
+    background: var(--primary);
+    margin: 4px 0;
+    border-radius: 2px;
+    transition: 0.3s;
+  }
+  .nav-container {
+    padding: 0 10px;
+  }
+  .skills-logos {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px 0;
+  }
+  .skill-logo {
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 0;
+    text-align: left;
+    padding: 6px 0;
+  }
+  .skill-logo img {
+    width: 28px;
+    height: 28px;
+    margin-bottom: 0;
+    margin-right: 12px;
+  }
+  .skill-logo span {
+    font-size: 1em;
+    margin-top: 0;
+  }
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .project-card {
+    padding: 14px 8px;
+  }
+  .project-img, .split-img {
+    max-height: 90px;
+  }
+  .split-img-container {
+    gap: 3px;
+  }
+  .contact-icons {
+    gap: 18px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .contact-link img {
+    width: 28px;
+    height: 28px;
+  }
+  .contact-details {
+    font-size: 1em;
+  }
+  .footer {
+    font-size: 0.95em;
+    margin: 40px 0 12px 0;
+  }
+}
+@media (max-width: 500px) {
+  html, body {
+    font-size: 14px;
+  }
+  .nav-logo {
+    font-size: 1.1em;
+  }
+  .nav-links a {
+    font-size: 1em;
+  }
+  .section-title {
+    font-size: 1.4em;
+  }
+  .about-text, .project-tools, .project-title, .project-link, .exp-role, .edu-degree, .contact-link, .contact-details, .footer {
+    font-size: 0.98em;
+  }
+  .hero h1 {
+    font-size: 1.5em;
+  }
+  .hero p {
+    font-size: 0.98em;
+  }
+  .hero .hero-btn {
+    font-size: 0.98em;
+  }
+}
+@media (max-width: 500px) {
+  html, body {
+    font-size: 12px;
+  }
+  .nav-logo {
+    font-size: 1em;
+  }
+  .section-title {
+    font-size: 1.2em;
+  }
+  .about-text, .project-tools, .project-title, .project-link, .exp-role, .edu-degree, .contact-link, .contact-details, .footer {
+    font-size: 0.92em;
+  }
+  .hero h1 {
+    font-size: 1.5em;
+  }
+  .hero p {
+    font-size: 0.92em;
+  }
+  .hero .hero-btn {
+    font-size: 0.92em;
+  }
+}
   </style>
 </head>
 <body>
   <nav class="navbar">
     <div class="nav-container">
       <a class="nav-logo" href="#">Chee Jun Kit</a>
-      <div class="nav-links">
+      <div class="hamburger" id="hamburger-menu" aria-label="Open navigation" tabindex="0">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="nav-links" id="nav-links">
         <a href="#about">About</a>
         <a href="#skills">Skills</a>
         <a href="#projects">Projects</a>
@@ -499,5 +650,25 @@ body {
   <div class="footer">
     &copy; 2025 Chee Jun Kit 
   </div>
+  <script>
+    // Hamburger menu toggle
+    const hamburger = document.getElementById('hamburger-menu');
+    const navLinks = document.getElementById('nav-links');
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+    });
+    // Optional: close menu when a link is clicked (for better UX)
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+      });
+    });
+    // Accessibility: allow hamburger to be toggled with Enter key
+    hamburger.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        navLinks.classList.toggle('open');
+      }
+    });
+  </script>
 </body>
 </html>
