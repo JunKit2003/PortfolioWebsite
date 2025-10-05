@@ -320,3 +320,179 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log('Portfolio website enhanced with modern interactions! 🚀');
 });
+
+// Contact form handling: validation, submission to n8n webhook, and UX states
+(function() {
+    const form = document.getElementById('contact-form');
+    if (!form) return;
+
+    const endpoint = 'https://n8n.junkit.work/webhook/contact-form';
+    const nameInput = document.getElementById('cf-name');
+    const emailInput = document.getElementById('cf-email');
+    const subjectInput = document.getElementById('cf-subject');
+    const messageInput = document.getElementById('cf-message');
+    const honeypot = document.getElementById('cf-website');
+    const submitBtn = document.getElementById('cf-submit');
+    const statusEl = document.getElementById('form-status');
+
+    function setError(input, message) {
+        const key = input.id.replace('cf-', '');
+        const err = document.getElementById('error-' + key);
+        if (err) {
+            err.textContent = message;
+            err.classList.add('visible');
+        }
+        input.setAttribute('aria-invalid', 'true');
+    }
+
+    function clearError(input) {
+        const key = input.id.replace('cf-', '');
+        const err = document.getElementById('error-' + key);
+        if (err) {
+            err.textContent = '';
+            err.classList.remove('visible');
+        }
+        input.removeAttribute('aria-invalid');
+    }
+
+    function validate() {
+        let valid = true;
+        // name
+        if (!nameInput.value.trim()) {
+            setError(nameInput, 'Please enter your name');
+            valid = false;
+        } else {
+            clearError(nameInput);
+        }
+
+        // email
+        const emailVal = emailInput.value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailVal) {
+            setError(emailInput, 'Please enter your email');
+            valid = false;
+        } else if (!emailRegex.test(emailVal)) {
+            setError(emailInput, 'Please enter a valid email');
+            valid = false;
+        } else {
+            clearError(emailInput);
+        }
+
+        // message
+        if (!messageInput.value.trim()) {
+            setError(messageInput, 'Please enter a message');
+            valid = false;
+        } else {
+            clearError(messageInput);
+        }
+
+        return valid;
+    }
+
+        // Live toggle submit button based on required fields
+        function updateSubmitState() {
+            const emailVal = emailInput.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const ready = nameInput.value.trim() && emailVal && emailRegex.test(emailVal) && messageInput.value.trim();
+            if (ready) {
+                    submitBtn.removeAttribute('disabled');
+            } else {
+                    submitBtn.setAttribute('disabled', 'disabled');
+            }
+        }
+
+        // Initialize submit state and attach listeners
+        updateSubmitState();
+        [nameInput, emailInput, messageInput].forEach(i => {
+            i.addEventListener('input', updateSubmitState);
+        });
+
+    function setLoading(isLoading) {
+        if (isLoading) {
+            submitBtn.setAttribute('disabled', 'disabled');
+            submitBtn.textContent = 'Sending...';
+        } else {
+            submitBtn.removeAttribute('disabled');
+            submitBtn.textContent = 'Send Message';
+        }
+    }
+
+    function showStatus(message, type) {
+        statusEl.textContent = message;
+        statusEl.classList.remove('success', 'error');
+        if (type === 'success') statusEl.classList.add('success');
+        if (type === 'error') statusEl.classList.add('error');
+    }
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // basic validation
+        if (!validate()) {
+            showStatus('Please correct the highlighted fields.', 'error');
+            return;
+        }
+
+        // Honeypot check
+        if (honeypot && honeypot.value.trim()) {
+            // Treat as spam silently
+            showStatus('Message sent.', 'success');
+            form.reset();
+            return;
+        }
+
+        setLoading(true);
+        showStatus('Sending...', null);
+
+        const payload = {
+            name: nameInput.value.trim(),
+            email: emailInput.value.trim(),
+            subject: subjectInput.value.trim(),
+            message: messageInput.value.trim()
+        };
+
+        try {
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                showStatus('Thanks — your message was sent!', 'success');
+                // animate and clear
+                form.classList.add('submitted');
+                setTimeout(() => {
+                    form.reset();
+                    // clear visual errors
+                    [nameInput, emailInput, subjectInput, messageInput].forEach(clearError);
+                    form.classList.remove('submitted');
+                }, 600);
+            } else {
+                const text = await res.text();
+                showStatus('Failed to send message. Try again later.', 'error');
+                console.error('Contact form error response:', res.status, text);
+            }
+        } catch (err) {
+            showStatus('Network error. Please check your connection.', 'error');
+            console.error('Contact form network error:', err);
+        } finally {
+            setLoading(false);
+        }
+    });
+
+    // Real-time validation on blur
+    [nameInput, emailInput, messageInput].forEach(input => {
+        input.addEventListener('blur', validate);
+    });
+
+    // Keyboard accessibility: focus styles
+    [nameInput, emailInput, subjectInput, messageInput].forEach(i => {
+        i.addEventListener('focus', (e) => {
+            e.target.style.boxShadow = '0 6px 24px rgba(78,166,255,0.08)';
+        });
+        i.addEventListener('blur', (e) => {
+            e.target.style.boxShadow = '';
+        });
+    });
+})();

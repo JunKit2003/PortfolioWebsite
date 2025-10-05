@@ -181,8 +181,16 @@
     <div class="section-title">Experience</div>
     <ul class="exp-list">
       <li class="exp-item">
+        <div class="exp-role">Graduate Software Engineering, The Access Group</div>
+        <div class="exp-period">September 2025 - Present</div>
+        <ul>
+          <li>Design, develop, and maintain enterprise software applications using modern frameworks and best practices.</li>
+          <li>Collaborate with cross-functional teams including product managers, designers, and senior engineers to deliver high-quality solutions.</li>
+        </ul>
+      </li>
+      <li class="exp-item">
         <div class="exp-role">Technician, Faction Bikeworks</div>
-        <div class="exp-period">May 2022 - Present</div>
+        <div class="exp-period">May 2022 - July 2025</div>
         <ul>
           <li>Expert maintenance, repair, and diagnostics for high-end mountain bikes.</li>
           <li>Personalized advice and customer service, maintaining strong relationships.</li>
@@ -215,7 +223,53 @@
 
   <div class="section" id="contact">
     <div class="section-title">Contact</div>
-    <div class="contact-icons">
+
+    <!-- Contact form (posts to n8n webhook) -->
+    <form id="contact-form" class="contact-form" novalidate aria-labelledby="contact-heading">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="cf-name">Name<span aria-hidden="true"> *</span></label>
+          <input type="text" id="cf-name" name="name" required autocomplete="name" aria-required="true" />
+          <span class="form-error" id="error-name" aria-live="polite"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="cf-email">Email<span aria-hidden="true"> *</span></label>
+          <input type="email" id="cf-email" name="email" required autocomplete="email" aria-required="true" />
+          <span class="form-error" id="error-email" aria-live="polite"></span>
+        </div>
+
+        <div class="form-group full">
+          <label for="cf-subject">Subject</label>
+          <input type="text" id="cf-subject" name="subject" autocomplete="off" />
+          <span class="form-error" id="error-subject" aria-live="polite"></span>
+        </div>
+
+        <div class="form-group full">
+          <label for="cf-message">Message<span aria-hidden="true"> *</span></label>
+          <textarea id="cf-message" name="message" rows="6" required aria-required="true"></textarea>
+          <span class="form-error" id="error-message" aria-live="polite"></span>
+        </div>
+
+        <!-- Honeypot for simple spam prevention (hidden) -->
+        <div style="display:none;" aria-hidden="true">
+          <label for="cf-website">Website</label>
+          <input type="text" id="cf-website" name="website" autocomplete="off" />
+        </div>
+
+        <div class="form-actions full">
+          <button type="submit" class="hero-btn" id="cf-submit">Send Message</button>
+          <div id="form-status" class="form-status" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+    </form>
+
+  </div>
+
+  <!-- Socials (moved out of contact) -->
+  <div class="section" id="socials">
+    <div class="section-title">Socials</div>
+    <div class="contact-icons" aria-label="Social links">
       <a href="https://www.linkedin.com/in/cheejunkit/" class="contact-link" target="_blank">
         <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" />
         <span>LinkedIn</span>
@@ -224,8 +278,6 @@
         <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" />
         <span>GitHub</span>
       </a>
-    </div>
-
     </div>
   </div>
 
