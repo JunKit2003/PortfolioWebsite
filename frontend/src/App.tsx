@@ -1,15 +1,11 @@
+import { ConnectSection } from "@/components/ConnectSection"
+import { EducationSection } from "@/components/EducationSection"
+import { ExperienceSection } from "@/components/ExperienceSection"
 import { HeroSection } from "@/components/HeroSection"
-import { SectionHeading } from "@/components/SectionHeading"
+import { ProjectsSection } from "@/components/ProjectsSection"
 import { SiteFooter } from "@/components/SiteFooter"
 import { SiteHeader } from "@/components/SiteHeader"
-
-const upcomingSections = [
-  { id: "stack", eyebrow: "Tools & practices", title: "Stack" },
-  { id: "projects", eyebrow: "Selected work", title: "Projects" },
-  { id: "experience", eyebrow: "Career", title: "Experience" },
-  { id: "education", eyebrow: "Learning", title: "Education" },
-  { id: "connect", eyebrow: "Elsewhere", title: "Connect" },
-]
+import { StackSection } from "@/components/StackSection"
 
 function App() {
   return (
@@ -17,13 +13,11 @@ function App() {
       <SiteHeader />
       <main>
         <HeroSection />
-        {upcomingSections.map((section) => (
-          <section className="page-section section-placeholder" id={section.id} key={section.id}>
-            <div className="content-container">
-              <SectionHeading eyebrow={section.eyebrow} title={section.title} />
-            </div>
-          </section>
-        ))}
+        <StackSection />
+        <ProjectsSection />
+        <ExperienceSection />
+        <EducationSection />
+        <ConnectSection />
       </main>
       <SiteFooter />
     </div>
