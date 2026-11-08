@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Menu, X } from "lucide-react"
 
 import { ThemeToggle } from "@/components/ThemeToggle"
@@ -18,13 +18,17 @@ const sectionIds = navigationItems.map((item) => item.href.slice(1))
 
 export function SiteHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
   const activeSection = useActiveSection(sectionIds)
 
   useEffect(() => {
     if (!isMenuOpen) return
 
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setIsMenuOpen(false)
+      if (event.key === "Escape") {
+        setIsMenuOpen(false)
+        menuButtonRef.current?.focus()
+      }
     }
 
     window.addEventListener("keydown", closeOnEscape)
@@ -61,6 +65,7 @@ export function SiteHeader() {
             aria-label={isMenuOpen ? "Close navigation" : "Open navigation"}
             className="site-nav-toggle"
             onClick={() => setIsMenuOpen((open) => !open)}
+            ref={menuButtonRef}
             size="icon"
             type="button"
             variant="ghost"
