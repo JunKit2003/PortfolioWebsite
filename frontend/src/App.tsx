@@ -6,8 +6,11 @@ import { ProjectsSection } from "@/components/ProjectsSection"
 import { SiteFooter } from "@/components/SiteFooter"
 import { SiteHeader } from "@/components/SiteHeader"
 import { StackSection } from "@/components/StackSection"
+import { useReveal } from "@/hooks/useReveal"
 
 function App() {
+  useReveal()
+
   return (
     <div className="site-shell">
       <SiteHeader />

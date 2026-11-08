@@ -3,7 +3,7 @@ import { education } from "@/data/portfolio"
 
 export function EducationSection() {
   return (
-    <section className="page-section" id="education">
+    <section className="page-section" data-reveal id="education">
       <div className="content-container">
         <SectionHeading eyebrow="Learning" title="Education" />
         <ul className="education-list">

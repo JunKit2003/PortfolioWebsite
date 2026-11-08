@@ -17,7 +17,7 @@ const externalLinkProps = {
 
 export function ProjectsSection() {
   return (
-    <section className="page-section" id="projects">
+    <section className="page-section" data-reveal id="projects">
       <div className="content-container">
         <SectionHeading
           eyebrow="Selected work"

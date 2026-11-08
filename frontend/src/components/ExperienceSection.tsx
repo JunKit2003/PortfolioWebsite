@@ -3,7 +3,7 @@ import { experience } from "@/data/portfolio"
 
 export function ExperienceSection() {
   return (
-    <section className="page-section" id="experience">
+    <section className="page-section" data-reveal id="experience">
       <div className="content-container">
         <SectionHeading eyebrow="Career" title="Experience" />
         <ol className="timeline">
