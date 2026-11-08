@@ -1,6 +1,19 @@
+import type { LucideIcon } from "lucide-react"
+import {
+  Activity,
+  BrainCircuit,
+  Cloud,
+  Database,
+  GitBranch,
+  Layers,
+  MonitorSmartphone,
+  Server,
+} from "lucide-react"
+
 export type SkillGroup = {
   title: string
   description: string
+  icon: LucideIcon
   skills: string[]
 }
 
@@ -36,27 +49,32 @@ export type SocialLink = {
   label: string
   href: string
   description: string
+  iconSlug: string
 }
 
 export const skillGroups: SkillGroup[] = [
   {
     title: "Frontend",
     description: "Accessible, component-driven interfaces.",
+    icon: MonitorSmartphone,
     skills: ["React", "TypeScript", "ShadCN UI", "Tailwind CSS", "HTML", "CSS"],
   },
   {
     title: "Backend",
     description: "Services and APIs for enterprise applications.",
+    icon: Server,
     skills: ["ASP.NET", "C#", "Node.js"],
   },
   {
     title: "Data",
     description: "Relational storage and data modelling.",
+    icon: Database,
     skills: ["MSSQL", "PostgreSQL", "Sequelize ORM"],
   },
   {
     title: "Cloud & Infrastructure",
     description: "Hosting, delivery, and containerized workloads.",
+    icon: Cloud,
     skills: [
       "Azure Static Web Apps",
       "Azure Container Apps",
@@ -71,6 +89,7 @@ export const skillGroups: SkillGroup[] = [
   {
     title: "Source Control & Delivery",
     description: "Version control and coordinated releases.",
+    icon: GitBranch,
     skills: [
       "Git",
       "Azure DevOps Boards",
@@ -81,16 +100,19 @@ export const skillGroups: SkillGroup[] = [
   {
     title: "AI & Developer Tools",
     description: "Day-to-day tooling and AI-assisted workflows.",
+    icon: BrainCircuit,
     skills: ["Claude", "Codex", "Devin", "AI CLI tools", "Ubuntu / WSL"],
   },
   {
     title: "Observability",
     description: "Monitoring and diagnosing production systems.",
+    icon: Activity,
     skills: ["Coralogix", "New Relic"],
   },
   {
     title: "Architecture & Extensibility",
     description: "Composable systems and extensible platforms.",
+    icon: Layers,
     skills: [
       "Microfrontends",
       "OpenComponents Registry",
@@ -250,10 +272,40 @@ export const socialLinks: SocialLink[] = [
     label: "GitHub",
     href: "https://github.com/JunKit2003",
     description: "Projects and source code.",
+    iconSlug: "github",
   },
   {
     label: "LinkedIn",
     href: "https://www.linkedin.com/in/cheejunkit/",
     description: "Professional profile and experience.",
+    iconSlug: "linkedin",
   },
 ]
+
+export const skillIconSlugs: Record<string, string> = {
+  React: "react",
+  TypeScript: "typescript",
+  "Tailwind CSS": "tailwindcss",
+  HTML: "html5",
+  CSS: "css3",
+  "ASP.NET": "dotnetcore",
+  "C#": "csharp",
+  "Node.js": "nodejs",
+  MSSQL: "microsoftsqlserver",
+  PostgreSQL: "postgresql",
+  "Sequelize ORM": "sequelize",
+  "Azure Static Web Apps": "azure",
+  "Azure Container Apps": "azure",
+  "Azure Front Door": "azure",
+  "Azure CLI": "azure",
+  "Azure MCP": "azure",
+  Docker: "docker",
+  Kubernetes: "kubernetes",
+  Nginx: "nginx",
+  Git: "git",
+  "Azure DevOps Boards": "azuredevops",
+  "Azure DevOps Tickets": "azuredevops",
+  "Azure DevOps CI/CD": "azuredevops",
+  "Ubuntu / WSL": "ubuntu",
+  "New Relic": "newrelic",
+}

@@ -550,3 +550,42 @@ html.light {
     transition-duration: 0.01ms !important;
   }
 }
+
+.brand-icon {
+  width: 1rem;
+  height: 1rem;
+  object-fit: contain;
+}
+
+.brand-icon-lg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.connect-copy {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stack-card [data-slot="card-title"] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stack-group-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--primary);
+}
+
+.skill-badge {
+  gap: 0.35rem;
+}
+
+.skill-icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  object-fit: contain;
+}
