@@ -27,6 +27,7 @@ export type Project = {
   description: string
   tools: string[]
   images: ProjectImage[]
+  category: "web" | "ai"
   href?: string
   linkLabel?: string
   note?: string
@@ -139,6 +140,7 @@ export const projects: Project[] = [
       "Oracle VPS",
     ],
     images: [{ src: "/k8s.png", alt: "Kubernetes Playground interface" }],
+    category: "web",
     href: "https://k8s.junkit.my",
     linkLabel: "View Live",
   },
@@ -153,6 +155,7 @@ export const projects: Project[] = [
         alt: "Car Consignment Website listing page",
       },
     ],
+    category: "web",
     href: "https://consigncars.junkit.my",
     linkLabel: "View Live",
   },
@@ -173,6 +176,7 @@ export const projects: Project[] = [
       "Oracle VPS",
     ],
     images: [{ src: "/faction.png", alt: "Faction Bikeworks storefront" }],
+    category: "web",
     note: "No longer hosted",
   },
   {
@@ -186,6 +190,7 @@ export const projects: Project[] = [
         alt: "SUMO traffic simulation animation",
       },
     ],
+    category: "ai",
     href: "https://github.com/JunKit2003/Designing-Intelligent-Agents",
     linkLabel: "View Repo",
   },
@@ -201,6 +206,7 @@ export const projects: Project[] = [
         alt: "LunarLander-v2 reinforcement learning animation",
       },
     ],
+    category: "ai",
     href: "https://github.com/JunKit2003/Autonomous-Robotics-Systems",
     linkLabel: "View Repo",
   },
@@ -211,6 +217,7 @@ export const projects: Project[] = [
     images: [
       { src: "/unm.png", alt: "University Marketplace Website interface" },
     ],
+    category: "web",
     note: "No longer hosted",
   },
 ]

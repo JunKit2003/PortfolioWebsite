@@ -569,6 +569,13 @@ html.light {
     transform: none;
     transition: none;
   }
+
+  .project-card:hover,
+  .project-card:focus-within,
+  .project-card:hover .project-media img,
+  .project-card:focus-within .project-media img {
+    transform: none;
+  }
 }
 
 .brand-icon {
@@ -608,4 +615,31 @@ html.light {
   width: 0.9rem;
   height: 0.9rem;
   object-fit: contain;
+}
+
+.projects-tabs {
+  margin-top: 2.5rem;
+}
+
+.project-card {
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.project-card:hover,
+.project-card:focus-within {
+  transform: translateY(-4px);
+  border-color: color-mix(in oklch, var(--primary) 45%, var(--border));
+  box-shadow: 0 1rem 2.5rem oklch(0 0 0 / 0.18);
+}
+
+.project-media img {
+  transition: transform 400ms ease;
+}
+
+.project-card:hover .project-media img,
+.project-card:focus-within .project-media img {
+  transform: scale(1.04);
 }
