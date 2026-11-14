@@ -79,6 +79,29 @@ html.light {
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+@theme {
+  --animate-accordion-down: accordion-down 200ms ease-out;
+  --animate-accordion-up: accordion-up 200ms ease-out;
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -411,45 +434,6 @@ html.light {
   font-size: 0.85rem;
 }
 
-.timeline {
-  display: grid;
-  gap: 1.75rem;
-  margin: 2.5rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.timeline-item {
-  display: grid;
-  grid-template-columns: minmax(8rem, 12rem) 1fr;
-  gap: 0.75rem;
-  padding-top: 1.75rem;
-  border-top: 1px solid color-mix(in oklch, var(--border) 45%, transparent);
-}
-
-.timeline-item:first-child {
-  padding-top: 0;
-  border-top: 0;
-}
-
-.timeline-period {
-  margin: 0;
-  color: var(--muted-foreground);
-  font-size: 0.85rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.timeline-body h3 {
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-.timeline-company {
-  margin: 0.2rem 0 0;
-  color: var(--primary);
-  font-weight: 600;
-}
-
 .timeline-bullets {
   display: grid;
   gap: 0.35rem;
@@ -517,11 +501,6 @@ html.light {
 }
 
 @media (max-width: 50rem) {
-  .timeline-item {
-    grid-template-columns: 1fr;
-    gap: 0.35rem;
-  }
-
   .connect-card {
     align-items: flex-start;
     flex-direction: column;
@@ -642,4 +621,33 @@ html.light {
 .project-card:hover .project-media img,
 .project-card:focus-within .project-media img {
   transform: scale(1.04);
+}
+
+.experience-accordion {
+  margin-top: 2.5rem;
+}
+
+.experience-trigger {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.experience-role {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.experience-company {
+  color: var(--primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.experience-period {
+  color: var(--muted-foreground);
+  font-size: 0.8rem;
+}
+
+.experience-accordion [data-slot="accordion-content"] .timeline-bullets {
+  margin-top: 0;
 }
