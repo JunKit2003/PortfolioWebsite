@@ -651,3 +651,32 @@ html.light {
 .experience-accordion [data-slot="accordion-content"] .timeline-bullets {
   margin-top: 0;
 }
+
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  gap: 1rem;
+  margin: 3rem 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid color-mix(in oklch, var(--border) 55%, transparent);
+}
+
+.stat {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.stat dt {
+  color: var(--muted-foreground);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stat dd {
+  margin: 0;
+  color: var(--foreground);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 750;
+  letter-spacing: -0.04em;
+}
