@@ -17,9 +17,9 @@ export function ThemeToggle() {
   useEffect(() => {
     document.documentElement.classList.toggle("light", isLight)
     try {
-      localStorage.setItem("theme", theme)
-    } catch (error) {}
-  }, [isLight, theme])
+      localStorage.setItem("theme", isLight ? "light" : "dark")
+    } catch {}
+  }, [isLight])
 
   return (
     <Button

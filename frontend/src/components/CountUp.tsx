@@ -5,8 +5,13 @@ type CountUpProps = {
   duration?: number
 }
 
+function getInitialDisplay(value: number) {
+  if (typeof window === "undefined") return 0
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? value : 0
+}
+
 export function CountUp({ value, duration = 1200 }: CountUpProps) {
-  const [display, setDisplay] = useState(0)
+  const [display, setDisplay] = useState(() => getInitialDisplay(value))
   const ref = useRef<HTMLSpanElement>(null)
   const started = useRef(false)
 
@@ -18,11 +23,9 @@ export function CountUp({ value, duration = 1200 }: CountUpProps) {
       "(prefers-reduced-motion: reduce)",
     ).matches
 
-    if (prefersReducedMotion) {
-      setDisplay(value)
-      return
-    }
+    if (prefersReducedMotion) return
 
+    let frameId: number | undefined
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -33,10 +36,10 @@ export function CountUp({ value, duration = 1200 }: CountUpProps) {
           const tick = (now: number) => {
             const progress = Math.min((now - start) / duration, 1)
             setDisplay(Math.round(progress * value))
-            if (progress < 1) requestAnimationFrame(tick)
+            if (progress < 1) frameId = requestAnimationFrame(tick)
           }
 
-          requestAnimationFrame(tick)
+          frameId = requestAnimationFrame(tick)
           observer.disconnect()
         })
       },
@@ -44,7 +47,10 @@ export function CountUp({ value, duration = 1200 }: CountUpProps) {
     )
 
     observer.observe(node)
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+      if (frameId !== undefined) cancelAnimationFrame(frameId)
+    }
   }, [duration, value])
 
   return <span ref={ref}>{display}</span>

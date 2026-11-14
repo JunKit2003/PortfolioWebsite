@@ -20,6 +20,12 @@ export function HeroSection() {
         <p className="eyebrow">Junior Software Engineer · The Access Group</p>
         <h1>Chee Jun Kit</h1>
         <p className="hero-summary">Computer Science (AI) graduate and full-stack developer.</p>
+        <p className="hero-about">
+          Motivated Computer Science graduate specializing in Artificial Intelligence and
+          full-stack web development. Experienced in building scalable applications, server
+          management, and deploying secure solutions. Passionate about continuous learning,
+          problem-solving, and collaborating on ambitious projects.
+        </p>
         <div className="hero-actions">
           <Button asChild size="lg">
             <a href="#projects">
@@ -29,13 +35,29 @@ export function HeroSection() {
           </Button>
           <Button asChild size="lg" variant="outline">
             <a href="https://github.com/JunKit2003" {...externalLinkProps}>
-              <img alt="" aria-hidden="true" className="brand-icon" src={githubIcon} />
+              <img
+                alt=""
+                aria-hidden="true"
+                className="brand-icon"
+                onError={(event) => {
+                  event.currentTarget.style.display = "none"
+                }}
+                src={githubIcon}
+              />
               GitHub
             </a>
           </Button>
           <Button asChild size="lg" variant="outline">
             <a href="https://www.linkedin.com/in/cheejunkit/" {...externalLinkProps}>
-              <img alt="" aria-hidden="true" className="brand-icon" src={linkedinIcon} />
+              <img
+                alt=""
+                aria-hidden="true"
+                className="brand-icon"
+                onError={(event) => {
+                  event.currentTarget.style.display = "none"
+                }}
+                src={linkedinIcon}
+              />
               LinkedIn
             </a>
           </Button>

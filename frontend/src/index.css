@@ -246,6 +246,13 @@ html.light {
   line-height: 1.6;
 }
 
+.hero-about {
+  max-width: 42rem;
+  margin: 1rem 0 0;
+  color: var(--muted-foreground);
+  line-height: 1.7;
+}
+
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
@@ -529,34 +536,6 @@ html.light {
   transform: none;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-  }
-
-  [data-reveal] {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-
-  .project-card:hover,
-  .project-card:focus-within,
-  .project-card:hover .project-media img,
-  .project-card:focus-within .project-media img {
-    transform: none;
-  }
-}
-
 .brand-icon {
   width: 1rem;
   height: 1rem;
@@ -679,4 +658,44 @@ html.light {
   font-size: clamp(1.75rem, 4vw, 2.5rem);
   font-weight: 750;
   letter-spacing: -0.04em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .project-card {
+    transition: none;
+  }
+
+  .project-card:hover,
+  .project-card:focus-within,
+  .project-card:hover .project-media img,
+  .project-card:focus-within .project-media img {
+    transform: none;
+  }
+
+  .project-media img {
+    transition: none;
+  }
+
+  .experience-accordion [data-slot="accordion-trigger"] svg {
+    transition: none;
+  }
 }

@@ -31,6 +31,9 @@ export function ConnectSection() {
                   aria-hidden="true"
                   className="brand-icon brand-icon-lg"
                   loading="lazy"
+                  onError={(event) => {
+                    event.currentTarget.style.display = "none"
+                  }}
                   src={deviconUrl(link.iconSlug)}
                 />
                 <div>
