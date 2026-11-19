@@ -35,7 +35,15 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Test
+        run: npm test
+
       - name: Build
+        env:
+          VITE_O2_SITE: ${{ vars.O2_SITE }}
+          VITE_O2_ORG: ${{ vars.O2_ORG }}
+          VITE_O2_CLIENT_TOKEN: ${{ secrets.O2_CLIENT_TOKEN }}
+          VITE_APP_VERSION: ${{ github.sha }}
         run: npm run build
 
       - name: Test activate-release script

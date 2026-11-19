@@ -1,0 +1,193 @@
+# Ships API, DB and nginx logs to OpenObserve over OTLP/HTTP. Run with the
+# `observability` Compose profile. Endpoint and credentials come from .env.
+extensions:
+  # Remembers how far each file has been read, so a restart neither
+  # re-sends old lines nor skips new ones.
+  file_storage:
+    directory: /var/lib/otelcol/storage
+    create_directory: true
+
+receivers:
+  # Docker json-file logs. Only containers labelled `logging.service` are kept
+  # (the label arrives as attrs["logging.service"] on each line).
+  file_log/docker:
+    include: [/var/lib/docker/containers/*/*-json.log]
+    include_file_path: true
+    start_at: beginning
+    storage: file_storage
+    operators:
+      - type: json_parser
+        parse_from: body
+        parse_to: attributes
+        timestamp:
+          parse_from: attributes.time
+          layout_type: gotime
+          layout: "2006-01-02T15:04:05.999999999Z07:00"
+      - type: move
+        from: attributes.log
+        to: body
+      - type: move
+        from: attributes.attrs["logging.service"]
+        to: attributes["logging.service"]
+        if: 'attributes.attrs != nil and attributes.attrs["logging.service"] != nil'
+      - type: filter
+        expr: 'attributes["logging.service"] == nil'
+      - type: remove
+        field: attributes.attrs
+        if: 'attributes.attrs != nil'
+      - type: remove
+        field: attributes.time
+      # Docker cuts lines over 16KB into pieces; only the last ends in a newline.
+      # Rejoin them (per file) so one log line stays one record.
+      - type: recombine
+        combine_field: body
+        combine_with: ""
+        is_last_entry: 'body matches "\\n$"'
+        source_identifier: attributes["log.file.path"]
+      - type: add
+        field: body
+        value: EXPR(trim(body, "\r\n"))
+
+  # nginx "combined" access log. Lines that do not match are kept as plain body.
+  file_log/nginx_access:
+    include: [/var/log/nginx/access.log]
+    start_at: beginning
+    storage: file_storage
+    operators:
+      - type: regex_parser
+        on_error: send_quiet
+        regex: '^(?P<remote_addr>\S+) - (?P<remote_user>\S+) \[(?P<time_local>[^\]]+)\] "(?P<request>[^"]*)" (?P<status>\d{3}) (?P<bytes>\S+) "(?P<referrer>[^"]*)" "(?P<user_agent>[^"]*)"'
+        timestamp:
+          parse_from: attributes.time_local
+          layout_type: gotime
+          layout: "02/Jan/2006:15:04:05 -0700"
+      # The request may be garbage (TLS probes etc.); then method/path stay unset.
+      - type: regex_parser
+        on_error: send_quiet
+        parse_from: attributes.request
+        regex: '^(?P<method>\S+) (?P<path>\S+)(?: (?P<protocol>\S+))?$'
+
+  file_log/nginx_error:
+    include: [/var/log/nginx/error.log]
+    start_at: beginning
+    storage: file_storage
+    operators:
+      - type: regex_parser
+        on_error: send_quiet
+        regex: '^(?P<time_local>\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>\w+)\] (?P<pid>\d+)#(?P<tid>\d+): (?P<message>.*)$'
+        timestamp:
+          parse_from: attributes.time_local
+          layout_type: gotime
+          layout: "2006/01/02 15:04:05"
+        severity:
+          parse_from: attributes.level
+          mapping:
+            debug: debug
+            info: info
+            notice: info
+            warn: warn
+            error: error
+            crit: fatal
+            alert: fatal
+            emerg: fatal
+      - type: move
+        from: attributes.message
+        to: body
+        if: 'attributes.message != nil'
+
+connectors:
+  # Splits the labelled Docker lines by service.
+  routing/docker:
+    error_mode: ignore
+    table:
+      - context: log
+        condition: attributes["logging.service"] == "api"
+        pipelines: [logs/api]
+      - context: log
+        condition: attributes["logging.service"] == "db"
+        pipelines: [logs/db]
+
+processors:
+  batch:
+    timeout: 5s
+  # Pino JSON lines: body becomes `msg`, level and time map to the log record,
+  # everything else becomes attributes. Non-JSON lines (crash stacks) pass as-is.
+  transform/pino:
+    error_mode: ignore
+    log_statements:
+      - context: log
+        statements:
+          - set(cache, ParseJSON(body)) where IsString(body) and IsMatch(body, "^\\s*\\{")
+          - set(severity_number, SEVERITY_NUMBER_TRACE) where cache["level"] != nil and Int(cache["level"]) == 10
+          - set(severity_number, SEVERITY_NUMBER_DEBUG) where cache["level"] != nil and Int(cache["level"]) == 20
+          - set(severity_number, SEVERITY_NUMBER_INFO) where cache["level"] != nil and Int(cache["level"]) == 30
+          - set(severity_number, SEVERITY_NUMBER_WARN) where cache["level"] != nil and Int(cache["level"]) == 40
+          - set(severity_number, SEVERITY_NUMBER_ERROR) where cache["level"] != nil and Int(cache["level"]) == 50
+          - set(severity_number, SEVERITY_NUMBER_FATAL) where cache["level"] != nil and Int(cache["level"]) == 60
+          - set(severity_text, "TRACE") where cache["level"] != nil and Int(cache["level"]) == 10
+          - set(severity_text, "DEBUG") where cache["level"] != nil and Int(cache["level"]) == 20
+          - set(severity_text, "INFO") where cache["level"] != nil and Int(cache["level"]) == 30
+          - set(severity_text, "WARN") where cache["level"] != nil and Int(cache["level"]) == 40
+          - set(severity_text, "ERROR") where cache["level"] != nil and Int(cache["level"]) == 50
+          - set(severity_text, "FATAL") where cache["level"] != nil and Int(cache["level"]) == 60
+          - set(time_unix_nano, Int(cache["time"]) * 1000000) where cache["time"] != nil
+          - set(body, cache["msg"]) where cache["msg"] != nil
+          - delete_key(cache, "level")
+          - delete_key(cache, "time")
+          - delete_key(cache, "msg")
+          - merge_maps(attributes, cache, "upsert")
+
+exporters:
+  # Queue is persisted (file_storage) and retries never give up, so an
+  # OpenObserve outage or a collector restart does not lose lines.
+  otlphttp/portfolio_api:
+    endpoint: ${env:O2_OTLP_ENDPOINT}
+    headers:
+      Authorization: Basic ${env:O2_AUTH}
+      stream-name: portfolio_api
+    sending_queue: {enabled: true, storage: file_storage}
+    retry_on_failure: {enabled: true, max_elapsed_time: 0}
+  otlphttp/portfolio_db:
+    endpoint: ${env:O2_OTLP_ENDPOINT}
+    headers:
+      Authorization: Basic ${env:O2_AUTH}
+      stream-name: portfolio_db
+    sending_queue: {enabled: true, storage: file_storage}
+    retry_on_failure: {enabled: true, max_elapsed_time: 0}
+  otlphttp/nginx_access:
+    endpoint: ${env:O2_OTLP_ENDPOINT}
+    headers:
+      Authorization: Basic ${env:O2_AUTH}
+      stream-name: nginx_access
+    sending_queue: {enabled: true, storage: file_storage}
+    retry_on_failure: {enabled: true, max_elapsed_time: 0}
+  otlphttp/nginx_error:
+    endpoint: ${env:O2_OTLP_ENDPOINT}
+    headers:
+      Authorization: Basic ${env:O2_AUTH}
+      stream-name: nginx_error
+    sending_queue: {enabled: true, storage: file_storage}
+    retry_on_failure: {enabled: true, max_elapsed_time: 0}
+
+service:
+  extensions: [file_storage]
+  pipelines:
+    logs/docker:
+      receivers: [file_log/docker]
+      exporters: [routing/docker]
+    logs/api:
+      receivers: [routing/docker]
+      processors: [transform/pino, batch]
+      exporters: [otlphttp/portfolio_api]
+    logs/db:
+      receivers: [routing/docker]
+      processors: [batch]
+      exporters: [otlphttp/portfolio_db]
+    logs/nginx_access:
+      receivers: [file_log/nginx_access]
+      processors: [batch]
+      exporters: [otlphttp/nginx_access]
+    logs/nginx_error:
+      receivers: [file_log/nginx_error]
+      processors: [batch]
+      exporters: [otlphttp/nginx_error]
