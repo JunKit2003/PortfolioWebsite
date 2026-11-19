@@ -17,7 +17,10 @@ export type Deps = {
 
 export function createApp(deps: Deps): Express {
   const app = express()
-  app.set("trust proxy", "loopback")
+  // Host nginx reaches the container through Docker's published port, so requests
+  // arrive from the bridge gateway (a private address), not loopback. Only nginx can
+  // reach that port, and it overwrites X-Forwarded-For with the real client IP.
+  app.set("trust proxy", "loopback, uniquelocal")
   app.disable("x-powered-by")
   app.use(helmet())
   if (deps.logRequests) app.use(pinoHttp())
