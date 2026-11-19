@@ -3,6 +3,8 @@ import { ArrowUp, ArrowUpRight } from "lucide-react"
 import { Magnetic } from "@/components/fx/Magnetic"
 import { Reveal } from "@/components/fx/Reveal"
 import { BrandIcon } from "@/components/sections/BrandIcon"
+import { ContactForm } from "@/components/sections/ContactForm"
+import { VisitCounter } from "@/components/VisitCounter"
 import { socialLinks } from "@/data/portfolio"
 import { container } from "@/lib/utils"
 
@@ -30,8 +32,12 @@ export function Connect() {
             <span className="font-serif font-normal italic text-gradient">something.</span>
           </h2>
           <p className="mt-8 max-w-xl text-lg text-fg-muted">
-            Find my code on GitHub and my experience on LinkedIn.
+            Send me a message, or find my code on GitHub and my experience on LinkedIn.
           </p>
+        </Reveal>
+
+        <Reveal delay={0.1}>
+          <ContactForm />
         </Reveal>
 
         <ul className="mt-16 border-t border-line">
@@ -75,6 +81,7 @@ export function Connect() {
         </p>
         <div className="mt-10 flex flex-col items-center justify-between gap-4 text-sm text-fg-faint sm:flex-row">
           <p>© {year} Chee Jun Kit</p>
+          <VisitCounter className="font-mono text-xs tracking-wider" />
           <p className="font-mono text-xs tracking-wider">Built with React, Motion &amp; Tailwind</p>
           <Magnetic>
             <a className="ghost-btn !px-4 !py-2.5 text-sm" href="#about">
