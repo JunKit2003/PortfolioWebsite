@@ -12,6 +12,7 @@ receivers:
   # (the label arrives as attrs["logging.service"] on each line).
   file_log/docker:
     include: [/var/lib/docker/containers/*/*-json.log]
+    include_file_path: true
     start_at: beginning
     storage: file_storage
     operators:
@@ -36,6 +37,13 @@ receivers:
         if: 'attributes.attrs != nil'
       - type: remove
         field: attributes.time
+      # Docker cuts lines over 16KB into pieces; only the last ends in a newline.
+      # Rejoin them (per file) so one log line stays one record.
+      - type: recombine
+        combine_field: body
+        combine_with: ""
+        is_last_entry: 'body matches "\\n$"'
+        source_identifier: attributes["log.file.path"]
       - type: add
         field: body
         value: EXPR(trim(body, "\r\n"))
@@ -130,26 +138,36 @@ processors:
           - merge_maps(attributes, cache, "upsert")
 
 exporters:
+  # Queue is persisted (file_storage) and retries never give up, so an
+  # OpenObserve outage or a collector restart does not lose lines.
   otlphttp/portfolio_api:
     endpoint: ${env:O2_OTLP_ENDPOINT}
     headers:
       Authorization: Basic ${env:O2_AUTH}
       stream-name: portfolio_api
+    sending_queue: {enabled: true, storage: file_storage}
+    retry_on_failure: {enabled: true, max_elapsed_time: 0}
   otlphttp/portfolio_db:
     endpoint: ${env:O2_OTLP_ENDPOINT}
     headers:
       Authorization: Basic ${env:O2_AUTH}
       stream-name: portfolio_db
+    sending_queue: {enabled: true, storage: file_storage}
+    retry_on_failure: {enabled: true, max_elapsed_time: 0}
   otlphttp/nginx_access:
     endpoint: ${env:O2_OTLP_ENDPOINT}
     headers:
       Authorization: Basic ${env:O2_AUTH}
       stream-name: nginx_access
+    sending_queue: {enabled: true, storage: file_storage}
+    retry_on_failure: {enabled: true, max_elapsed_time: 0}
   otlphttp/nginx_error:
     endpoint: ${env:O2_OTLP_ENDPOINT}
     headers:
       Authorization: Basic ${env:O2_AUTH}
       stream-name: nginx_error
+    sending_queue: {enabled: true, storage: file_storage}
+    retry_on_failure: {enabled: true, max_elapsed_time: 0}
 
 service:
   extensions: [file_storage]

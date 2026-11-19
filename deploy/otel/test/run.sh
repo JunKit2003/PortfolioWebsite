@@ -70,7 +70,10 @@ check(len(e) == 1 and e[0]["sev"] == "ERROR", "api: level 50 -> ERROR")
 c = [r for r in api if isinstance(r["body"], str) and "NODE_CRASH_LINE" in r["body"]]
 check(len(c) == 1 and c[0]["body"].startswith("    at Object.<anonymous>") and not c[0]["body"].endswith("\n"),
       "api: non-JSON line delivered as plain body, newline trimmed")
-check(len(api) == 3, "api: exactly 3 records (got %d)" % len(api))
+sp = [r for r in api if r["body"] == "split line warning"]
+check(len(sp) == 1 and sp[0]["sev"] == "WARN" and sp[0]["attrs"].get("big") == "AAAABBBB",
+      "api: line split across two docker entries arrives as ONE parsed record (WARN)")
+check(len(api) == 4, "api: exactly 4 records (got %d)" % len(api))
 
 db = records("portfolio_db")
 check(len(db) == 1 and "ready to accept connections" in db[0]["body"], "db: fixture line delivered")
