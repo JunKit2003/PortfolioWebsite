@@ -3,7 +3,7 @@
 **Product:** Portfolio website
 **Parent:** none (personal project, no work item)
 **Date:** 2026-11-19 (updated 2026-11-19: rollback uses the atomic `ln -sfn` + `mv -T` form; uploads go to a `.partial` dir first)
-**Status:** Approved design, not yet built
+**Status:** Built, awaiting first deploy
 
 Design doc: [plans/2026-11-19-cicd-deploy-design.md](plans/2026-11-19-cicd-deploy-design.md)
 

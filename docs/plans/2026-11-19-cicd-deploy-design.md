@@ -63,7 +63,7 @@ Goal: stop deploying by hand. Pushing to `main` should be the whole deploy.
 | Build | runner | `npm run build` → `frontend/dist/` |
 | Upload | runner → VM | `rsync -az --delete dist/ deploy@host:/var/www/portfolio/releases/.<sha>.partial/`; the activate step renames it to `releases/<sha>` |
 | Swap | VM via SSH | `ln -sfn releases/<sha> current.tmp && mv -T current.tmp current` |
-| Prune | VM via SSH | keep newest 5 in `releases/` |
+| Prune | VM via SSH | keep newest 5 in `releases/`; remove stale `.*.partial` dirs |
 
 ### Changes to existing setup
 
