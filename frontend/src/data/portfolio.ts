@@ -152,7 +152,7 @@ export const projects: Project[] = [
     images: [
       {
         src: "/CarConsignmentWebsite.png",
-        alt: "Car Consignment Website listing page",
+        alt: "ConsignCars homepage featuring a red sports car",
       },
     ],
     category: "web",
