@@ -216,10 +216,11 @@ export const projects: Project[] = [
     description: "Team lead for a university marketplace web app.",
     tools: ["Flutter", "Node.js", "MySQL", "Nginx"],
     images: [
-      { src: "/unm.png", alt: "University Marketplace Website interface" },
+      { src: "/unm-marketplace.png", alt: "UNM Marketplace homepage with campus listings" },
     ],
     category: "web",
-    note: "No longer hosted",
+    href: "https://unm.junkit.my",
+    linkLabel: "View Live",
   },
 ]
 
