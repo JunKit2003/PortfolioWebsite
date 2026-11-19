@@ -33,6 +33,21 @@ async function loadSdks(): Promise<Sdks> {
   return { rum: rum.openobserveRum, logs: logs.openobserveLogs } as unknown as Sdks
 }
 
+type IdleWindow = Pick<Window, "addEventListener"> & {
+  requestIdleCallback?: Window["requestIdleCallback"]
+  document: { readyState: DocumentReadyState }
+}
+
+/** Runs fn after the window load event and a browser idle slot, so monitoring never competes with first paint. */
+export function whenIdle(fn: () => void, win: IdleWindow = window): void {
+  const schedule = () => {
+    if (win.requestIdleCallback) win.requestIdleCallback(() => fn(), { timeout: 5000 })
+    else setTimeout(fn, 1)
+  }
+  if (win.document.readyState === "complete") schedule()
+  else win.addEventListener("load", schedule, { once: true })
+}
+
 let sdks: Sdks | null = null
 let started: Promise<boolean> | null = null
 

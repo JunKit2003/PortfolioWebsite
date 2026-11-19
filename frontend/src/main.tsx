@@ -6,7 +6,7 @@ import '@fontsource/instrument-serif/400.css'
 import '@fontsource/instrument-serif/400-italic.css'
 import './index.css'
 import App from './App.tsx'
-import { initObservability } from './lib/observability'
+import { initObservability, whenIdle } from './lib/observability'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -14,4 +14,4 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-void initObservability()
+whenIdle(() => void initObservability())

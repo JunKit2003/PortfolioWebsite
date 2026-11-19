@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { __resetObservabilityForTests, initObservability, log, readObservabilityConfig } from "./observability"
+import { __resetObservabilityForTests, initObservability, log, readObservabilityConfig, whenIdle } from "./observability"
 
 const full = { PROD: true, VITE_O2_SITE: "o2.example.com", VITE_O2_ORG: "default", VITE_O2_CLIENT_TOKEN: "tok", VITE_APP_VERSION: "abc123" }
 
@@ -106,5 +106,60 @@ describe("log", () => {
     await initObservability(full, () => Promise.resolve(sdks))
     log("error", "boom", { a: 1 })
     expect(sdks.logs.logger.error).toHaveBeenCalledWith("boom", { a: 1 })
+  })
+})
+
+describe("whenIdle", () => {
+  function fakeWin(readyState: DocumentReadyState, idle?: (cb: () => void, opts?: object) => number) {
+    const listeners: Record<string, () => void> = {}
+    const win = {
+      addEventListener: vi.fn((type: string, cb: () => void) => {
+        listeners[type] = cb
+      }),
+      requestIdleCallback: idle,
+      document: { readyState },
+    } as unknown as NonNullable<Parameters<typeof whenIdle>[1]>
+    return { win, listeners }
+  }
+
+  it("waits for the load event, then for idle, when the page is not complete", () => {
+    const idle = vi.fn((cb: () => void) => {
+      cb()
+      return 1
+    })
+    const { win, listeners } = fakeWin("loading", idle)
+    const fn = vi.fn()
+    whenIdle(fn, win)
+    expect(fn).not.toHaveBeenCalled()
+    expect(idle).not.toHaveBeenCalled()
+    listeners.load()
+    expect(idle).toHaveBeenCalledWith(expect.any(Function), { timeout: 5000 })
+    expect(fn).toHaveBeenCalledTimes(1)
+  })
+
+  it("goes straight to idle when the page is already complete", () => {
+    const idle = vi.fn((cb: () => void) => {
+      cb()
+      return 1
+    })
+    const { win } = fakeWin("complete", idle)
+    const fn = vi.fn()
+    whenIdle(fn, win)
+    expect(win.addEventListener).not.toHaveBeenCalled()
+    expect(fn).toHaveBeenCalledTimes(1)
+  })
+
+  it("falls back to setTimeout when requestIdleCallback is missing", () => {
+    vi.useFakeTimers()
+    try {
+      const { win } = fakeWin("complete")
+      const fn = vi.fn()
+      whenIdle(fn, win)
+      expect(fn).not.toHaveBeenCalled()
+      vi.advanceTimersByTime(1)
+      expect(fn).toHaveBeenCalledTimes(1)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })
