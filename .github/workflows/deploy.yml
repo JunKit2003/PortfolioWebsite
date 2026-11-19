@@ -14,7 +14,9 @@ permissions:
 
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: frontend
@@ -50,14 +52,14 @@ jobs:
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
           printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/deploy_key ~/.ssh/known_hosts
-          echo "SSH_CMD=ssh -i $HOME/.ssh/deploy_key -p ${PORT} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" >> "$GITHUB_ENV"
+          echo "SSH_CMD=ssh -i $HOME/.ssh/deploy_key -p ${PORT} -o ConnectTimeout=20 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" >> "$GITHUB_ENV"
 
       - name: Upload release
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         run: |
-          rsync -az --delete -e "$SSH_CMD" dist/ "$DEPLOY_USER@$DEPLOY_HOST:/var/www/portfolio/releases/${GITHUB_SHA}/"
+          rsync -az --delete -e "$SSH_CMD" dist/ "$DEPLOY_USER@$DEPLOY_HOST:/var/www/portfolio/releases/.${GITHUB_SHA}.partial/"
 
       - name: Activate release
         env:
