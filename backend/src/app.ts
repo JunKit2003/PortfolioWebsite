@@ -5,6 +5,7 @@ import type { Sequelize } from "sequelize"
 
 import type { Mailer } from "./mailer.js"
 import { contactRouter } from "./routes/contact.js"
+import { visitsRouter } from "./routes/visits.js"
 
 export type Deps = {
   sequelize: Sequelize
@@ -32,6 +33,7 @@ export function createApp(deps: Deps): Express {
   })
 
   app.use("/api/contact", contactRouter(deps))
+  app.use("/api/visits", visitsRouter(deps))
 
   app.use("/api", (_req, res) => {
     res.status(404).json({ error: "not_found" })
