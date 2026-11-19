@@ -8,6 +8,7 @@ Node 24 + TypeScript + Express 5 API with Sequelize on Postgres. It powers:
 
 Design: [`docs/plans/2026-11-19-backend-contact-visits-design.md`](../docs/plans/2026-11-19-backend-contact-visits-design.md).
 Acceptance spec: [`docs/backend-contact-visits-spec.md`](../docs/backend-contact-visits-spec.md).
+OpenObserve log shipping and browser monitoring: [`docs/openobserve-handoff.md`](../docs/openobserve-handoff.md).
 
 ## Local development
 

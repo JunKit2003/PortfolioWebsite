@@ -3,7 +3,7 @@
 **Product:** Portfolio website
 **Parent:** none (personal project, no work item)
 **Date:** 2026-11-19
-**Status:** Approved design, not yet built
+**Status:** Built, awaiting OpenObserve
 
 Design doc: [plans/2026-11-19-openobserve-wiring-design.md](plans/2026-11-19-openobserve-wiring-design.md)
 
