@@ -16,6 +16,15 @@ keep="${3:-5}"
 [[ "$keep" =~ ^[1-9][0-9]*$ ]] || die "keep must be a positive integer: $keep"
 
 cd "$base" || die "cannot cd to $base"
+# Uploads land in releases/.<sha>.partial and are promoted here. A live release
+# is never rewritten in place: if it already exists, the new upload is dropped.
+if [ -d "releases/.$sha.partial" ]; then
+  if [ -e "releases/$sha" ]; then
+    rm -rf "releases/.$sha.partial"
+  else
+    mv "releases/.$sha.partial" "releases/$sha"
+  fi
+fi
 [ -d "releases/$sha" ] || die "release not found: releases/$sha"
 
 # Mtime is the deploy order used for pruning, not the build time.
@@ -33,5 +42,8 @@ while IFS= read -r rel; do
   [ "$rel" = "$active" ] && continue
   rm -rf "releases/$rel"
 done < <(ls -1t releases)
+
+# Stale uploads from failed deploys (the one for $sha was consumed above).
+find releases -mindepth 1 -maxdepth 1 -type d -name '.*.partial' -exec rm -rf {} +
 
 echo "Activated $sha"

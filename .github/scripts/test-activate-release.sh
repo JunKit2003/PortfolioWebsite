@@ -32,6 +32,44 @@ activate() { bash "$SCRIPT" "$@" >/dev/null 2>&1; }
 
 assert_eq() { [ "$2" = "$3" ] || fail "$1" "expected '$3' got '$2'"; }
 
+t_promotes_partial() {
+  newbase
+  mkdir -p "$BASE/releases/.abc.partial"; echo new > "$BASE/releases/.abc.partial/index.html"
+  activate "$BASE" abc || fail promotes_partial "non-zero exit"
+  assert_eq promotes_partial "$(readlink "$BASE/current")" "releases/abc"
+  assert_eq promotes_partial "$(cat "$BASE/releases/abc/index.html")" "new"
+  [ ! -e "$BASE/releases/.abc.partial" ] || fail promotes_partial "partial left behind"
+  pass promotes_partial
+}
+
+t_rerun_live_sha_discards_partial() {
+  newbase; mkrel "$BASE" a
+  echo live > "$BASE/releases/a/marker"
+  ln -s releases/a "$BASE/current"
+  mkdir -p "$BASE/releases/.a.partial"; echo different > "$BASE/releases/.a.partial/marker"
+  activate "$BASE" a || fail rerun_live_sha_discards_partial "non-zero exit"
+  assert_eq rerun_live_sha_discards_partial "$(cat "$BASE/releases/a/marker")" "live"
+  assert_eq rerun_live_sha_discards_partial "$(readlink "$BASE/current")" "releases/a"
+  [ ! -e "$BASE/releases/.a.partial" ] || fail rerun_live_sha_discards_partial "partial left behind"
+  pass rerun_live_sha_discards_partial
+}
+
+t_stale_partials_pruned() {
+  newbase; mkrel "$BASE" a
+  mkdir -p "$BASE/releases/.old.partial"; echo x > "$BASE/releases/.old.partial/index.html"
+  activate "$BASE" a || fail stale_partials_pruned "non-zero exit"
+  [ ! -e "$BASE/releases/.old.partial" ] || fail stale_partials_pruned "stale partial remains"
+  pass stale_partials_pruned
+}
+
+t_partial_not_counted() {
+  newbase; for i in 1 2 3 4 5; do mkrel "$BASE" "r$i"; done
+  mkdir -p "$BASE/releases/.stale.partial"
+  activate "$BASE" r5 5 || fail partial_not_counted "non-zero exit"
+  assert_eq partial_not_counted "$(listrel "$BASE")" "r1 r2 r3 r4 r5"
+  pass partial_not_counted
+}
+
 t_first_deploy() {
   newbase; mkrel "$BASE" a
   activate "$BASE" a
@@ -73,13 +111,13 @@ t_keeps_rolled_back_current() {
   pass keeps_rolled_back_current
 }
 
-t_protects_current_outside_keep() {
-  # Current points at an old release that is not being activated: it must survive pruning.
+t_missing_sha_leaves_releases_untouched() {
+  # Activating a sha that does not exist must fail before any pruning happens.
   newbase; for i in 1 2 3 4 5 6 7; do mkrel "$BASE" "r$i"; done
   ln -s releases/r1 "$BASE/current"
-  if activate "$BASE" nope 5; then fail protects_current_outside_keep "expected failure"; fi
-  assert_eq protects_current_outside_keep "$(listrel "$BASE")" "r1 r2 r3 r4 r5 r6 r7"
-  pass protects_current_outside_keep
+  if activate "$BASE" nope 5; then fail missing_sha_leaves_releases_untouched "expected failure"; fi
+  assert_eq missing_sha_leaves_releases_untouched "$(listrel "$BASE")" "r1 r2 r3 r4 r5 r6 r7"
+  pass missing_sha_leaves_releases_untouched
 }
 
 t_missing_release_fails() {
@@ -110,7 +148,11 @@ t_switches_current
 t_prunes_to_keep
 t_fewer_than_keep
 t_keeps_rolled_back_current
-t_protects_current_outside_keep
+t_missing_sha_leaves_releases_untouched
 t_missing_release_fails
 t_rerun_same_sha
 t_relative_symlink
+t_promotes_partial
+t_rerun_live_sha_discards_partial
+t_stale_partials_pruned
+t_partial_not_counted
