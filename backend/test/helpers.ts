@@ -36,3 +36,23 @@ export function testDeps(overrides: Partial<Deps> = {}): Deps {
     ...overrides,
   }
 }
+
+export async function resetDb(): Promise<void> {
+  const { runMigrations } = await import("../src/migrate.js")
+  const sequelize = testSequelize()
+  await runMigrations(sequelize)
+  await sequelize.query("TRUNCATE contact_messages, visits")
+}
+
+export async function eventually(check: () => Promise<void>, timeoutMs = 2000): Promise<void> {
+  const deadline = Date.now() + timeoutMs
+  for (;;) {
+    try {
+      await check()
+      return
+    } catch (err) {
+      if (Date.now() > deadline) throw err
+      await new Promise((resolve) => setTimeout(resolve, 25))
+    }
+  }
+}

@@ -4,6 +4,7 @@ import { pinoHttp } from "pino-http"
 import type { Sequelize } from "sequelize"
 
 import type { Mailer } from "./mailer.js"
+import { contactRouter } from "./routes/contact.js"
 
 export type Deps = {
   sequelize: Sequelize
@@ -29,6 +30,8 @@ export function createApp(deps: Deps): Express {
       res.status(503).json({ status: "error" })
     }
   })
+
+  app.use("/api/contact", contactRouter(deps))
 
   app.use("/api", (_req, res) => {
     res.status(404).json({ error: "not_found" })
