@@ -73,7 +73,7 @@ setting if a required one is absent.
 
 ## Deploying on the VM
 
-This assumes the VM nginx setup from the CI/CD work (`chore/cicd-deploy`): nginx serves the
+This assumes the VM nginx setup from [`docs/deploy-vm-setup.md`](../docs/deploy-vm-setup.md): nginx serves the
 site from `/var/www/portfolio/current` and handles TLS.
 
 1. Install Docker Engine with the compose plugin, clone the repo and `cd` into it.

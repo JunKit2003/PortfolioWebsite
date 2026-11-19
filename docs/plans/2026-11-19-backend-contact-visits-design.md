@@ -9,7 +9,7 @@ Give the portfolio its own backend so it can grow later, starting with two featu
 - **Add** a Node + TypeScript backend in `backend/` (Express, Sequelize, Postgres) with Sequelize migrations.
 - **Restore** a contact form on the site that saves each message to Postgres and emails it to Jun Kit through nodemailer (SMTP).
 - **Add** a public visit counter: unique visitors per day, totalled, shown in the footer.
-- **Ship** the API and DB as a Docker Compose stack on Jun Kit's VM. The site stays as static files that the VM's existing nginx serves and the CI/CD pipeline deploys ([cicd-deploy design](2026-11-19-cicd-deploy-design.md) on `chore/cicd-deploy`). nginx gains one `/api/` rule that forwards to the API.
+- **Ship** the API and DB as a Docker Compose stack on Jun Kit's VM. The site stays as static files that the VM's existing nginx serves and the CI/CD pipeline deploys ([cicd-deploy design](2026-11-19-cicd-deploy-design.md), merged in #2). nginx gains one `/api/` rule that forwards to the API.
 
 ### Answers to the open questions
 
@@ -32,7 +32,7 @@ Give the portfolio its own backend so it can grow later, starting with two featu
 - n8n, in any form.
 - An admin screen for reading messages (they arrive by email and are kept in Postgres).
 - Private analytics (pages viewed, referrers, charts).
-- Automatic backend deploys (manual `git pull && docker compose up -d --build` for now). Frontend CI/CD belongs to the `chore/cicd-deploy` work.
+- Automatic backend deploys (manual `git pull && docker compose up -d --build` for now). Frontend CI/CD shipped separately in #2.
 - TLS changes (the existing nginx setup stays) and DB backups.
 
 **Definition of Done**
