@@ -1,0 +1,26 @@
+# Local development only. Use with:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db mailpit
+services:
+  api:
+    build:
+      context: ./backend
+      secrets:
+        - extra_ca
+
+  db:
+    ports:
+      - "127.0.0.1:54329:5432"
+    volumes:
+      - ./deploy/postgres/create-test-db.sql:/docker-entrypoint-initdb.d/create-test-db.sql:ro
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8025:8025"
+      - "127.0.0.1:1025:1025"
+
+secrets:
+  # Host CA bundle for networks that intercept TLS; empty file otherwise.
+  extra_ca:
+    file: ${NODE_EXTRA_CA_CERTS:-/dev/null}
