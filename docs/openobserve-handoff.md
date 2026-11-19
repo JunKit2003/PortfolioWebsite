@@ -49,18 +49,41 @@ O2_OTLP_ENDPOINT=https://<host>/api/<org>
 O2_AUTH=<base64 output from above>
 ```
 
-- `O2_OTLP_ENDPOINT` is the org's OTLP base URL. If OpenObserve runs on the same Docker host, an internal URL works (for example `http://<container-or-host-ip>:5080/api/<org>`), but the collector container must be able to reach it (same Docker network, or the host's address, not `localhost`).
+- `O2_OTLP_ENDPOINT` is the org's OTLP base URL and must stop at `/api/<org>`: the exporter appends `/v1/logs` itself.
+- Prefer an internal endpoint (for example `http://<container-or-host-ip>:5080/api/<org>`) over the public host. It keeps collector traffic out of nginx (see section 5a). The collector container must be able to reach it: `localhost` does not work from inside the container.
+- If OpenObserve runs in a different Compose project, either attach the collector to OpenObserve's network (an `external` network in a compose override on the VM, not committed) and use `http://<service>:5080/api/<org>`, or use the host's published port.
+- Don't reuse the ingestion user behind `O2_AUTH` as a UI login.
 - Starting the profile with an empty `O2_OTLP_ENDPOINT` makes the collector crash-loop (`restart: unless-stopped`). Set `.env` first.
 - The `api` container also receives `O2_AUTH` because it loads the whole `.env` (`env_file: .env`). That is why the user must be ingestion-only.
 
 ## 5. Start
 
+Before starting, verify the credentials (a wrong `O2_AUTH` makes OpenObserve answer 401/403, which the exporter treats as permanent, so those batches are dropped and the file positions still advance: lines are lost, not delayed):
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' -X POST -H "Authorization: Basic $O2_AUTH" -H 'Content-Type: application/json' -d '{"resourceLogs":[]}' "$O2_OTLP_ENDPOINT/v1/logs"
+```
+
+Expect `200`. Then:
+
 ```bash
 cd <repo-dir-on-vm>
 docker compose --profile observability up -d
-# one-time, so the logging label (logging.service) applies to the running containers:
+# safety net so the logging label (logging.service) applies to the running containers:
 docker compose up -d --force-recreate api db
 ```
+
+The separate `--force-recreate api db` is only a safety net. The first `docker compose up -d` after pulling already recreates `api` and `db` because their labels/logging changed, so it is fine if the second command does nothing.
+
+## 5a. Avoid a log feedback loop
+
+If OpenObserve's public host is a server block on the same nginx with the default access log, every collector push and browser beacon becomes an `nginx_access` line that is shipped again, forever. Give the OpenObserve server block its own log so it never writes to `/var/log/nginx/access.log`:
+
+```nginx
+access_log /var/log/nginx/openobserve.access.log;   # or: access_log off;
+```
+
+Reload nginx afterwards (`sudo nginx -t && sudo systemctl reload nginx`). Using an internal `O2_OTLP_ENDPOINT` (section 4) also keeps collector pushes out of nginx.
 
 Local smoke test of the collector config (needs Docker, run in the repo): `bash deploy/otel/test/run.sh`.
 
@@ -91,7 +114,8 @@ It should appear in the browser logs / RUM Errors for service `portfolio-web`.
 
 ## 8. Troubleshooting
 
-- **401 from OpenObserve** (collector logs: `docker compose logs otel-collector`): `O2_AUTH` wrong. Rebuild with `printf '%s'` (no trailing newline) and check the user exists in `<org>`.
+- **401/403 from OpenObserve** (collector logs: `docker compose logs otel-collector`): `O2_AUTH` wrong. The exporter treats 401/403 as permanent, so those batches are dropped and lines are lost, not just delayed. Rebuild with `printf '%s'` (no trailing newline), check the user exists in `<org>`, and re-run the curl check in section 5.
+- **`nginx_access` full of `POST /api/<org>/v1/logs` or `/rum/` lines**: feedback loop, see section 5a.
 - **CORS errors in the browser console**: OpenObserve host does not allow origin `https://junkit.my`.
 - **Browser sends nothing**: `O2_SITE`, `O2_ORG` or `O2_CLIENT_TOKEN` unset or the site was not rebuilt; or `O2_SITE` includes `https://` or a path.
 - **No nginx lines**: check `/var/log/nginx/access.log` and `error.log` exist at those paths and use the default `combined` format; unmatched lines still arrive as plain text.

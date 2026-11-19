@@ -99,6 +99,8 @@ Backend deploys are manual for now:
 git pull && docker compose up -d --build
 ```
 
+The OpenTelemetry collector sits under the `observability` profile, so that command does not touch it. After changing `deploy/otel/collector.yaml`, run `docker compose --profile observability up -d --force-recreate otel-collector`. Once observability is set up you can include `--profile observability` in the deploy command instead.
+
 Migrations run automatically when the API starts.
 
 ### Reading messages

@@ -94,4 +94,4 @@ No database migration.
 - Minified browser stack traces (no source-map upload).
 - nginx logs must stay in `combined` format at the default paths; a custom `log_format` needs the regex updated.
 - Changing Docker's logging options only applies to containers recreated after the change (`docker compose up -d --force-recreate api db`).
-- If OpenObserve is down, the collector buffers briefly then drops; browser SDK data is lost.
+- If OpenObserve is down, the collector keeps a persistent retry queue in the `otelstorage` volume and retries without a time limit; it drops batches only when the queue (default 1000 batches) is full. Browser SDK data is lost.
