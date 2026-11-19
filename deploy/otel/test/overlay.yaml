@@ -1,0 +1,15 @@
+# Test only: swaps the OpenObserve exporters for file exporters, one file per stream.
+processors:
+  batch:
+    timeout: 1s
+exporters:
+  file/portfolio_api: {path: /out/portfolio_api.jsonl}
+  file/portfolio_db: {path: /out/portfolio_db.jsonl}
+  file/nginx_access: {path: /out/nginx_access.jsonl}
+  file/nginx_error: {path: /out/nginx_error.jsonl}
+service:
+  pipelines:
+    logs/api: {exporters: [file/portfolio_api]}
+    logs/db: {exporters: [file/portfolio_db]}
+    logs/nginx_access: {exporters: [file/nginx_access]}
+    logs/nginx_error: {exporters: [file/nginx_error]}

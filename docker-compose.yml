@@ -4,6 +4,14 @@ services:
   db:
     image: postgres:17-alpine
     restart: unless-stopped
+    labels:
+      logging.service: db
+    logging:
+      driver: json-file
+      options:
+        labels: logging.service
+        max-size: "10m"
+        max-file: "3"
     environment:
       POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
@@ -19,6 +27,14 @@ services:
   api:
     build: ./backend
     restart: unless-stopped
+    labels:
+      logging.service: api
+    logging:
+      driver: json-file
+      options:
+        labels: logging.service
+        max-size: "10m"
+        max-file: "3"
     env_file: .env
     environment:
       PORT: "3000"
@@ -28,5 +44,24 @@ services:
     ports:
       - "127.0.0.1:${API_PORT:-3000}:3000"
 
+  # Ships container and nginx logs to OpenObserve. Off by default:
+  #   docker compose --profile observability up -d otel-collector
+  otel-collector:
+    profiles: [observability]
+    image: otel/opentelemetry-collector-contrib:0.165.0
+    restart: unless-stopped
+    # root so it can read the root-owned Docker log files; mounts are read-only
+    user: "0"
+    command: ["--config", "/etc/otelcol/collector.yaml"]
+    environment:
+      O2_OTLP_ENDPOINT: ${O2_OTLP_ENDPOINT:-}
+      O2_AUTH: ${O2_AUTH:-}
+    volumes:
+      - ./deploy/otel/collector.yaml:/etc/otelcol/collector.yaml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/log/nginx:/var/log/nginx:ro
+      - otelstorage:/var/lib/otelcol/storage
+
 volumes:
   pgdata:
+  otelstorage:

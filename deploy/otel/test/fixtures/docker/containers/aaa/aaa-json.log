@@ -1,0 +1,3 @@
+{"log":"{\"level\":30,\"time\":1732000000000,\"pid\":1,\"hostname\":\"x\",\"req\":{\"method\":\"GET\",\"url\":\"/api/visits\"},\"res\":{\"statusCode\":200},\"responseTime\":4,\"msg\":\"request completed\"}\n","stream":"stdout","attrs":{"logging.service":"api"},"time":"2026-11-19T12:00:00.123456789Z"}
+{"log":"{\"level\":50,\"time\":1732000001000,\"pid\":1,\"hostname\":\"x\",\"err\":{\"type\":\"Error\",\"message\":\"boom\"},\"msg\":\"contact send failed\"}\n","stream":"stdout","attrs":{"logging.service":"api"},"time":"2026-11-19T12:00:01.123456789Z"}
+{"log":"    at Object.<anonymous> (/app/server.js:10:11) NODE_CRASH_LINE\n","stream":"stderr","attrs":{"logging.service":"api"},"time":"2026-11-19T12:00:02.123456789Z"}
