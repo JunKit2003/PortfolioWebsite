@@ -2,7 +2,7 @@
 
 **Product:** Portfolio website
 **Parent:** none (personal project, no work item)
-**Date:** 2026-11-19
+**Date:** 2026-11-19 (updated 2026-11-19: rollback uses the atomic `ln -sfn` + `mv -T` form; uploads go to a `.partial` dir first)
 **Status:** Approved design, not yet built
 
 Design doc: [plans/2026-11-19-cicd-deploy-design.md](plans/2026-11-19-cicd-deploy-design.md)
@@ -122,7 +122,7 @@ Feature: Safe failure
 
 ### Acceptance criteria
 
-**DP03-AC1: One-command rollback.** Pointing `current` at an older release folder restores that version without reloading nginx.
+**DP03-AC1: One-command rollback.** Atomically pointing `current` at an older release folder restores that version without reloading nginx.
 
 ### Gherkin specifications
 
@@ -133,7 +133,7 @@ Feature: Rollback
   @DP03_AC1
   Scenario: Roll back to previous release
     Given at least two releases exist
-    When I run ln -sfn releases/<older-sha> current on the VM
+    When I run ln -sfn releases/<older-sha> current.tmp && mv -T current.tmp current on the VM
     Then the site shows the older version
     And nginx was not reloaded
 ```

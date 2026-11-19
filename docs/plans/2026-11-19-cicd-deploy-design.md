@@ -61,7 +61,7 @@ Goal: stop deploying by hand. Pushing to `main` should be the whole deploy.
 | Install | runner | `npm ci` (npm cache via `actions/setup-node`) |
 | Lint | runner | `npm run lint` |
 | Build | runner | `npm run build` → `frontend/dist/` |
-| Upload | runner → VM | `rsync -az --delete dist/ deploy@host:/var/www/portfolio/releases/<sha>/` |
+| Upload | runner → VM | `rsync -az --delete dist/ deploy@host:/var/www/portfolio/releases/.<sha>.partial/`; the activate step renames it to `releases/<sha>` |
 | Swap | VM via SSH | `ln -sfn releases/<sha> current.tmp && mv -T current.tmp current` |
 | Prune | VM via SSH | keep newest 5 in `releases/` |
 
@@ -82,5 +82,5 @@ No migration.
 ## 5. Known limitations
 
 - First deploy needs the one-time VM setup done by hand.
-- Rollback is manual (`ln -sfn releases/<older-sha> current`).
+- Rollback is manual (`ln -sfn releases/<older-sha> current.tmp && mv -T current.tmp current`).
 - Browser caches may hold old `index.html` briefly; hashed asset names from Vite avoid stale JS/CSS.
