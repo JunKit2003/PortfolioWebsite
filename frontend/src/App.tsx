@@ -1,29 +1,35 @@
-import { ConnectSection } from "@/components/ConnectSection"
-import { EducationSection } from "@/components/EducationSection"
-import { ExperienceSection } from "@/components/ExperienceSection"
-import { HeroSection } from "@/components/HeroSection"
-import { ProjectsSection } from "@/components/ProjectsSection"
-import { SiteFooter } from "@/components/SiteFooter"
+import { MotionConfig } from "motion/react"
+
+import { CursorGlow, Grain, ScrollProgress } from "@/components/fx/Ambient"
+import { Connect } from "@/components/sections/Connect"
+import { Education, Experience } from "@/components/sections/Experience"
+import { Hero } from "@/components/sections/Hero"
+import { Projects } from "@/components/sections/Projects"
+import { Stack } from "@/components/sections/Stack"
 import { SiteHeader } from "@/components/SiteHeader"
-import { StackSection } from "@/components/StackSection"
-import { useReveal } from "@/hooks/useReveal"
+import { useSmoothScroll } from "@/hooks/useSmoothScroll"
 
 function App() {
-  useReveal()
+  useSmoothScroll()
 
   return (
-    <div className="site-shell">
+    <MotionConfig reducedMotion="user">
+      <a className="skip-link" href="#main">
+        Skip to content
+      </a>
+      <ScrollProgress />
+      <CursorGlow />
+      <Grain />
       <SiteHeader />
-      <main>
-        <HeroSection />
-        <StackSection />
-        <ProjectsSection />
-        <ExperienceSection />
-        <EducationSection />
-        <ConnectSection />
+      <main className="relative z-[2]" id="main">
+        <Hero />
+        <Stack />
+        <Projects />
+        <Experience />
+        <Education />
+        <Connect />
       </main>
-      <SiteFooter />
-    </div>
+    </MotionConfig>
   )
 }
 
