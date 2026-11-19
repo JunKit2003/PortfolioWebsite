@@ -177,7 +177,8 @@ export const projects: Project[] = [
     ],
     images: [{ src: "/faction.png", alt: "Faction Bikeworks storefront" }],
     category: "web",
-    note: "No longer hosted",
+    href: "https://bikeshop.junkit.my",
+    linkLabel: "View Live",
   },
   {
     name: "Reinforcement Learning on Traffic Signals",
