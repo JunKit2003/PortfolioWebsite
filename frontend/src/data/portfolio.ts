@@ -145,6 +145,21 @@ export const projects: Project[] = [
     linkLabel: "View Live",
   },
   {
+    name: "Pet Hotel Reservation",
+    description:
+      "A pet boarding and daycare platform with room availability, online reservations, and a staff dashboard.",
+    tools: ["React", "TypeScript", "ASP.NET Core", "PostgreSQL", "Docker"],
+    images: [
+      {
+        src: "/pet-hotel-reservation.jpg",
+        alt: "Paws & Pillows pet hotel reservation homepage",
+      },
+    ],
+    category: "web",
+    href: "https://pet-hotel.junkit.my",
+    linkLabel: "View Demo",
+  },
+  {
     name: "Car Consignment Website",
     description:
       "A simple car consignment website for browsing and managing vehicle listings.",
